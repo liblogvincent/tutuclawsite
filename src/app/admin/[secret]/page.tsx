@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { articles, categories } from '@/data/articles';
 import { notFound } from 'next/navigation';
 
 const ADMIN_SECRET = 'Xiaotutu';
 
-export default function AdminPage({ params }: { params: { secret: string } }) {
-  if (params.secret !== ADMIN_SECRET) {
+export default function AdminPage({ params }: { params: Promise<{ secret: string }> }) {
+  const { secret } = use(params);
+  if (secret !== ADMIN_SECRET) {
     notFound();
   }
   const [activeTab, setActiveTab] = useState('articles');
