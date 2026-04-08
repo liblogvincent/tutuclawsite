@@ -1,9 +1,44 @@
 'use client';
 
-import { articles } from '@/data/articles';
+import { useState, useEffect } from 'react';
+import { Article } from '@/data/articles';
+import { fetchArticles } from '@/lib/api';
 import ArticleCard from '@/components/ArticleCard';
 
 export default function Home() {
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchArticles()
+      .then(setArticles)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="animate-pulse space-y-6">
+          <div className="h-72 md:h-[420px] rounded-2xl" style={{ background: 'var(--bg-surface)' }} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-64 rounded-2xl" style={{ background: 'var(--bg-surface)' }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (articles.length === 0) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <p className="text-lg" style={{ color: 'var(--text-muted)' }}>暂无文章</p>
+      </div>
+    );
+  }
+
   const featuredArticle = articles[0];
   const recentArticles = articles.slice(1, 5);
   const popularArticles = [...articles].sort((a, b) => b.views - a.views).slice(0, 3);

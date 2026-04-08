@@ -1,15 +1,37 @@
-import { articles, categories } from '@/data/articles';
+'use client';
+
+import { useState, useEffect, use } from 'react';
 import { notFound } from 'next/navigation';
 import ArticleCard from '@/components/ArticleCard';
+import { Article } from '@/data/articles';
+import { fetchArticles } from '@/lib/api';
 
-export async function generateStaticParams() {
-  return categories.map((category) => ({
-    category: category,
-  }));
-}
+export default function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
+  const { category } = use(params);
+  const decodedCategory = decodeURIComponent(category);
+  const [categoryArticles, setCategoryArticles] = useState<Article[] | null>(null);
 
-export default function CategoryPage({ params }: { params: { category: string } }) {
-  const categoryArticles = articles.filter((a) => a.category === params.category);
+  useEffect(() => {
+    fetchArticles()
+      .then((all) => setCategoryArticles(all.filter((a) => a.category === decodedCategory)))
+      .catch(() => setCategoryArticles([]));
+  }, [decodedCategory]);
+
+  // Loading
+  if (categoryArticles === null) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 w-48 rounded" style={{ background: 'var(--bg-surface)' }} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-64 rounded-2xl" style={{ background: 'var(--bg-surface)' }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (categoryArticles.length === 0) {
     notFound();
@@ -29,7 +51,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
           分类
         </span>
         <h1 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: "var(--text-primary)" }}>
-          {params.category}
+          {decodedCategory}
         </h1>
         <div
           className="w-12 h-0.5 rounded-full mb-4"

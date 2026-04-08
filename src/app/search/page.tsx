@@ -1,38 +1,44 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { articles, Article } from '@/data/articles';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { Article } from '@/data/articles';
+import { fetchArticles } from '@/lib/api';
 import ArticleCard from '@/components/ArticleCard';
 import { useSearchParams } from 'next/navigation';
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
+  const [allArticles, setAllArticles] = useState<Article[]>([]);
   const [results, setResults] = useState<Article[]>([]);
   const [searchTerm, setSearchTerm] = useState(query);
 
+  // Load all articles once
   useEffect(() => {
-    if (query) {
-      const filtered = articles.filter(
+    fetchArticles().then(setAllArticles).catch(() => {});
+  }, []);
+
+  const filterArticles = useCallback(
+    (term: string, source: Article[]) =>
+      source.filter(
         (article) =>
-          article.title.toLowerCase().includes(query.toLowerCase()) ||
-          article.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-          article.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()))
-      );
-      setResults(filtered);
+          article.title.toLowerCase().includes(term.toLowerCase()) ||
+          article.excerpt.toLowerCase().includes(term.toLowerCase()) ||
+          article.tags.some((tag) => tag.toLowerCase().includes(term.toLowerCase()))
+      ),
+    []
+  );
+
+  useEffect(() => {
+    if (query && allArticles.length > 0) {
+      setResults(filterArticles(query, allArticles));
     }
-  }, [query]);
+  }, [query, allArticles, filterArticles]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      const filtered = articles.filter(
-        (article) =>
-          article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          article.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-      setResults(filtered);
+      setResults(filterArticles(searchTerm, allArticles));
     }
   };
 
