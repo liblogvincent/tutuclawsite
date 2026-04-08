@@ -1,23 +1,63 @@
-import { articles } from '@/data/articles';
-import { notFound } from 'next/navigation';
+'use client';
+
+import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 
-export async function generateStaticParams() {
-  return articles.map((article) => ({
-    id: article.id,
-  }));
+interface Article {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  category: string;
+  tags: string[];
+  publishedAt: string;
+  author: string;
+  views: number;
 }
 
-export default function ArticlePage({ params }: { params: { id: string } }) {
-  const article = articles.find((a) => a.id === params.id);
+export default function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const [article, setArticle] = useState<Article | null>(null);
+  const [related, setRelated] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!article) {
-    notFound();
+  useEffect(() => {
+    Promise.all([
+      fetch(`/api/articles/${id}`).then((r) => r.json()),
+      fetch('/api/articles').then((r) => r.json()),
+    ])
+      .then(([art, allArticles]) => {
+        setArticle(art);
+        setRelated(
+          allArticles.filter(
+            (a: Article) => a.category === art.category && a.id !== art.id
+          ).slice(0, 3)
+        );
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="animate-pulse space-y-6">
+          <div className="h-64 md:h-[420px] rounded-2xl" style={{ background: "var(--bg-surface)" }} />
+          <div className="h-8 w-3/4 rounded" style={{ background: "var(--bg-surface)" }} />
+          <div className="h-4 w-1/2 rounded" style={{ background: "var(--bg-surface)" }} />
+        </div>
+      </div>
+    );
   }
 
-  const relatedArticles = articles
-    .filter((a) => a.category === article.category && a.id !== article.id)
-    .slice(0, 3);
+  if (!article) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <p style={{ color: "var(--text-muted)" }}>文章不存在</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-up">
@@ -39,13 +79,8 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
 
       {/* Article Card */}
       <article className="glass overflow-hidden mb-12">
-        {/* Cover Image */}
         <div className="relative h-64 md:h-[420px]">
-          <img
-            src={article.coverImage}
-            alt={article.title}
-            className="w-full h-full object-cover"
-          />
+          <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover" />
           <div
             className="absolute inset-0"
             style={{
@@ -55,23 +90,17 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
         </div>
 
         <div className="p-6 md:p-10">
-          {/* Category Badge */}
           <span
             className="inline-block px-3 py-1 text-xs font-semibold rounded-full mb-5"
-            style={{
-              background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))",
-              color: "#fff",
-            }}
+            style={{ background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))", color: "#fff" }}
           >
             {article.category}
           </span>
 
-          {/* Title */}
           <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-5" style={{ color: "var(--text-primary)" }}>
             {article.title}
           </h1>
 
-          {/* Meta */}
           <div className="flex flex-wrap items-center gap-3 text-sm mb-6" style={{ color: "var(--text-muted)" }}>
             <span
               className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs"
@@ -84,62 +113,38 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
             <span>{article.views.toLocaleString()} 阅读</span>
           </div>
 
-          {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-8">
             {article.tags.map((tag) => (
               <span
                 key={tag}
                 className="tag-pill px-3 py-1 text-xs rounded-full cursor-pointer"
-                style={{
-                  background: "var(--bg-surface)",
-                  border: "1px solid var(--glass-border)",
-                  color: "var(--text-secondary)",
-                  transition: "border-color 0.3s, color 0.3s",
-                }}
+                style={{ background: "var(--bg-surface)", border: "1px solid var(--glass-border)", color: "var(--text-secondary)", transition: "border-color 0.3s, color 0.3s" }}
               >
                 #{tag}
               </span>
             ))}
           </div>
 
-          {/* Divider */}
           <div className="section-divider mb-8" />
 
-          {/* Content */}
           <div className="space-y-5">
             <p className="text-lg font-medium leading-relaxed" style={{ color: "var(--text-secondary)" }}>
               {article.excerpt}
             </p>
-            <div className="space-y-4 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-              <p>
-                这是文章的详细内容部分。在实际应用中，这里会包含完整的文章内容，包括段落、图片、引用等。
-              </p>
-              <p>
-                文章内容可以根据需要进行扩展，支持Markdown格式或富文本编辑器格式。
-              </p>
-              <h2 className="text-2xl font-bold pt-4" style={{ color: "var(--text-primary)" }}>
-                技术要点
-              </h2>
-              <p>
-                关键技术点和技术细节可以在这里详细阐述，为读者提供深入的技术分析。
-              </p>
+            <div className="space-y-4 leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text-secondary)" }}>
+              {article.content}
             </div>
           </div>
         </div>
       </article>
 
       {/* Related Articles */}
-      {relatedArticles.length > 0 && (
+      {related.length > 0 && (
         <section className="animate-fade-up delay-2">
-          <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>
-            相关文章
-          </h2>
-          <div
-            className="w-12 h-0.5 rounded-full mb-8"
-            style={{ background: "linear-gradient(90deg, var(--accent-start), var(--accent-end))" }}
-          />
+          <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>相关文章</h2>
+          <div className="w-12 h-0.5 rounded-full mb-8" style={{ background: "linear-gradient(90deg, var(--accent-start), var(--accent-end))" }} />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {relatedArticles.map((relArticle) => (
+            {related.map((relArticle) => (
               <Link key={relArticle.id} href={`/article/${relArticle.id}`} className="group block">
                 <div className="glass glass-hover accent-border overflow-hidden">
                   <div className="relative h-36 overflow-hidden">
@@ -148,18 +153,10 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
                       alt={relArticle.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background: "linear-gradient(to top, var(--bg-card), transparent 60%)",
-                      }}
-                    />
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--bg-card), transparent 60%)" }} />
                   </div>
                   <div className="p-4">
-                    <h3
-                      className="text-sm font-semibold line-clamp-2 transition-colors duration-300"
-                      style={{ color: "var(--text-primary)" }}
-                    >
+                    <h3 className="text-sm font-semibold line-clamp-2" style={{ color: "var(--text-primary)" }}>
                       {relArticle.title}
                     </h3>
                   </div>

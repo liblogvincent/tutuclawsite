@@ -17,11 +17,11 @@ export default function Footer() {
                 AI
               </div>
               <span className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
-                AI资讯平台
+                TutuClaw
               </span>
             </div>
             <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
-              最具影响力的人工智能社交资讯平台，提供最新AI行业动态、技术突破和产业分析。
+              最具影响力的人工智能社交资讯平台，提供最新AI行业动态、技术突破和产业分析。有之一。
             </p>
           </div>
 
@@ -71,7 +71,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent-mid)" }} />
-                北京市海淀区中关村
+                A Tutu Production
               </li>
             </ul>
           </div>
@@ -124,7 +124,7 @@ export default function Footer() {
         <div className="section-divider mt-12 mb-8" />
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            © 2026 AI资讯平台. All rights reserved.
+            © 2026 A TutuClaw Site. All rights reserved.
           </p>
           <div className="flex gap-6">
             {['隐私政策', '服务条款', '联系我们'].map((label) => (

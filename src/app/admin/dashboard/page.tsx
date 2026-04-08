@@ -1,22 +1,45 @@
 'use client';
 
-import { useState, use } from 'react';
-import { articles, categories } from '@/data/articles';
-import { notFound } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
-const ADMIN_SECRET = 'Xiaotutu';
+const categories = ['行业动态', '科技前沿', '企业动态', '学术动态', '技术突破'];
 
-export default function AdminPage({ params }: { params: Promise<{ secret: string }> }) {
-  const { secret } = use(params);
-  if (secret !== ADMIN_SECRET) {
-    notFound();
-  }
+interface Article {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  category: string;
+  tags: string[];
+  publishedAt: string;
+  author: string;
+  views: number;
+}
+
+export default function AdminDashboard() {
+  const [articles, setArticles] = useState<Article[]>([]);
   const [activeTab, setActiveTab] = useState('articles');
   const [isEditing, setIsEditing] = useState(false);
-  const [editingArticle, setEditingArticle] = useState<any>(null);
+  const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
+  const [saving, setSaving] = useState(false);
+  const router = useRouter();
 
-  const handleEdit = (article: any) => {
-    setEditingArticle(article);
+  const fetchArticles = useCallback(async () => {
+    const res = await fetch('/api/articles');
+    if (res.ok) {
+      const data = await res.json();
+      setArticles(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
+
+  const handleEdit = (article: Article) => {
+    setEditingArticle({ ...article });
     setIsEditing(true);
   };
 
@@ -30,16 +53,58 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
       category: '行业动态',
       tags: [],
       publishedAt: new Date().toISOString().split('T')[0],
-      author: '',
-      views: 0
+      author: '管理员',
+      views: 0,
     });
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    alert('文章已保存！（实际应用中会保存到数据库）');
-    setIsEditing(false);
-    setEditingArticle(null);
+  const handleSave = async () => {
+    if (!editingArticle) return;
+    setSaving(true);
+
+    try {
+      const isEdit = !!editingArticle.id;
+      const url = isEdit ? `/api/articles/${editingArticle.id}` : '/api/articles';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingArticle),
+      });
+
+      if (res.ok) {
+        setIsEditing(false);
+        setEditingArticle(null);
+        fetchArticles();
+      } else {
+        const data = await res.json();
+        alert(data.error || '保存失败');
+      }
+    } catch {
+      alert('网络错误，请重试');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('确定要删除这篇文章吗？')) return;
+
+    try {
+      const res = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchArticles();
+      }
+    } catch {
+      alert('删除失败');
+    }
+  };
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/admin/login');
   };
 
   const tabs = [
@@ -61,24 +126,37 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
             style={{ background: "linear-gradient(90deg, var(--accent-start), var(--accent-end))" }}
           />
         </div>
-        <button
-          onClick={handleNewArticle}
-          className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
-          style={{
-            background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))",
-            color: "#fff",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-1px)";
-            e.currentTarget.style.boxShadow = "0 4px 20px rgba(99, 102, 241, 0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          + 新建文章
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleNewArticle}
+            className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
+            style={{
+              background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))",
+              color: "#fff",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "0 4px 20px rgba(99, 102, 241, 0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            + 新建文章
+          </button>
+          <button
+            onClick={handleLogout}
+            className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
+            style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--glass-border)",
+              color: "var(--text-secondary)",
+            }}
+          >
+            退出登录
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -166,6 +244,7 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
                           编辑
                         </button>
                         <button
+                          onClick={() => handleDelete(article.id)}
                           className="text-xs font-medium transition-colors duration-200"
                           style={{ color: "#ef4444" }}
                         >
@@ -175,6 +254,13 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
                     </td>
                   </tr>
                 ))}
+                {articles.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+                      暂无文章，点击"新建文章"开始创作
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -195,7 +281,7 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
               </label>
               <input
                 type="text"
-                value={editingArticle.title}
+                value={editingArticle.title || ''}
                 onChange={(e) => setEditingArticle({ ...editingArticle, title: e.target.value })}
                 className="w-full px-4 py-3 text-sm"
               />
@@ -206,7 +292,7 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
                 摘要
               </label>
               <textarea
-                value={editingArticle.excerpt}
+                value={editingArticle.excerpt || ''}
                 onChange={(e) => setEditingArticle({ ...editingArticle, excerpt: e.target.value })}
                 rows={3}
                 className="w-full px-4 py-3 text-sm"
@@ -218,7 +304,7 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
                 内容
               </label>
               <textarea
-                value={editingArticle.content}
+                value={editingArticle.content || ''}
                 onChange={(e) => setEditingArticle({ ...editingArticle, content: e.target.value })}
                 rows={10}
                 className="w-full px-4 py-3 text-sm"
@@ -231,7 +317,7 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
                   分类
                 </label>
                 <select
-                  value={editingArticle.category}
+                  value={editingArticle.category || '行业动态'}
                   onChange={(e) => setEditingArticle({ ...editingArticle, category: e.target.value })}
                   className="w-full px-4 py-3 text-sm"
                 >
@@ -247,8 +333,37 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
                 </label>
                 <input
                   type="text"
-                  value={editingArticle.coverImage}
+                  value={editingArticle.coverImage || ''}
                   onChange={(e) => setEditingArticle({ ...editingArticle, coverImage: e.target.value })}
+                  className="w-full px-4 py-3 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+                  作者
+                </label>
+                <input
+                  type="text"
+                  value={editingArticle.author || ''}
+                  onChange={(e) => setEditingArticle({ ...editingArticle, author: e.target.value })}
+                  className="w-full px-4 py-3 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+                  标签（逗号分隔）
+                </label>
+                <input
+                  type="text"
+                  value={(editingArticle.tags || []).join(', ')}
+                  onChange={(e) => setEditingArticle({
+                    ...editingArticle,
+                    tags: e.target.value.split(',').map((t: string) => t.trim()).filter(Boolean),
+                  })}
                   className="w-full px-4 py-3 text-sm"
                 />
               </div>
@@ -271,19 +386,21 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
               </button>
               <button
                 onClick={handleSave}
+                disabled={saving}
                 className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
                 style={{
                   background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))",
                   color: "#fff",
+                  opacity: saving ? 0.6 : 1,
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = "0 4px 20px rgba(99, 102, 241, 0.3)";
+                  if (!saving) e.currentTarget.style.boxShadow = "0 4px 20px rgba(99, 102, 241, 0.3)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = "none";
                 }}
               >
-                保存
+                {saving ? '保存中...' : '保存'}
               </button>
             </div>
           </div>
@@ -294,9 +411,9 @@ export default function AdminPage({ params }: { params: Promise<{ secret: string
       {activeTab === 'stats' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 animate-fade-up">
           {[
-            { label: '总文章数', value: articles.length, icon: '📄' },
-            { label: '总阅读量', value: articles.reduce((sum, a) => sum + a.views, 0).toLocaleString(), icon: '👁' },
-            { label: '分类数量', value: categories.length, icon: '📂' },
+            { label: '总文章数', value: articles.length },
+            { label: '总阅读量', value: articles.reduce((sum, a) => sum + a.views, 0).toLocaleString() },
+            { label: '分类数量', value: new Set(articles.map(a => a.category)).size },
           ].map((stat, i) => (
             <div key={stat.label} className={`glass glass-hover p-6 animate-fade-up delay-${i + 1}`}>
               <p className="text-sm font-medium mb-1" style={{ color: "var(--text-muted)" }}>

@@ -1,38 +1,55 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { articles, Article } from '@/data/articles';
 import ArticleCard from '@/components/ArticleCard';
 import { useSearchParams } from 'next/navigation';
+
+interface Article {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  category: string;
+  tags: string[];
+  publishedAt: string;
+  author: string;
+  views: number;
+}
+
+function filterArticles(allArticles: Article[], q: string): Article[] {
+  const lower = q.toLowerCase();
+  return allArticles.filter(
+    (article) =>
+      article.title.toLowerCase().includes(lower) ||
+      article.excerpt.toLowerCase().includes(lower) ||
+      article.tags.some((tag) => tag.toLowerCase().includes(lower))
+  );
+}
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState<Article[]>([]);
   const [searchTerm, setSearchTerm] = useState(query);
+  const [allArticles, setAllArticles] = useState<Article[]>([]);
 
   useEffect(() => {
-    if (query) {
-      const filtered = articles.filter(
-        (article) =>
-          article.title.toLowerCase().includes(query.toLowerCase()) ||
-          article.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-          article.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()))
-      );
-      setResults(filtered);
+    fetch('/api/articles')
+      .then((res) => res.json())
+      .then((data) => setAllArticles(data));
+  }, []);
+
+  useEffect(() => {
+    if (query && allArticles.length > 0) {
+      setResults(filterArticles(allArticles, query));
     }
-  }, [query]);
+  }, [query, allArticles]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      const filtered = articles.filter(
-        (article) =>
-          article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          article.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-      setResults(filtered);
+    if (searchTerm.trim() && allArticles.length > 0) {
+      setResults(filterArticles(allArticles, searchTerm));
     }
   };
 
@@ -53,9 +70,7 @@ function SearchContent() {
             <svg
               className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5"
               style={{ color: "var(--text-muted)" }}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -65,44 +80,27 @@ function SearchContent() {
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="输入关键词搜索..."
               className="w-full pl-12 pr-4 py-3.5 text-base rounded-xl"
-              style={{
-                background: "var(--bg-surface)",
-                border: "1px solid var(--glass-border)",
-                color: "var(--text-primary)",
-              }}
+              style={{ background: "var(--bg-surface)", border: "1px solid var(--glass-border)", color: "var(--text-primary)" }}
             />
           </div>
           <button
             type="submit"
             className="px-8 py-3.5 rounded-xl font-medium text-sm transition-all duration-300"
-            style={{
-              background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))",
-              color: "#fff",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = "0.9";
-              e.currentTarget.style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = "1";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
+            style={{ background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))", color: "#fff" }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
           >
             搜索
           </button>
         </div>
       </form>
 
-      {/* Results count */}
       {query && (
         <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
-          找到{' '}
-          <span className="font-semibold gradient-text">{results.length}</span>{' '}
-          篇相关文章
+          找到 <span className="font-semibold gradient-text">{results.length}</span> 篇相关文章
         </p>
       )}
 
-      {/* Results Grid */}
       {results.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {results.map((article, i) => (
@@ -122,9 +120,7 @@ function SearchContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <p className="text-base" style={{ color: "var(--text-muted)" }}>
-              没有找到相关文章
-            </p>
+            <p className="text-base" style={{ color: "var(--text-muted)" }}>没有找到相关文章</p>
           </div>
         )
       )}
