@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 const categories = ['行业动态', '科技前沿', '企业动态', '学术动态', '技术突破'];
 
@@ -18,12 +21,22 @@ interface Article {
   views: number;
 }
 
+interface CommentWithArticle {
+  id: string;
+  nickname: string;
+  content: string;
+  createdAt: string;
+  article: { title: string };
+}
+
 export default function AdminDashboard() {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [comments, setComments] = useState<CommentWithArticle[]>([]);
   const [activeTab, setActiveTab] = useState('articles');
   const [isEditing, setIsEditing] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
   const fetchArticles = useCallback(async () => {
@@ -34,9 +47,18 @@ export default function AdminDashboard() {
     }
   }, []);
 
+  const fetchComments = useCallback(async () => {
+    const res = await fetch('/api/comments?all=true');
+    if (res.ok) {
+      const data = await res.json();
+      setComments(data);
+    }
+  }, []);
+
   useEffect(() => {
     fetchArticles();
-  }, [fetchArticles]);
+    fetchComments();
+  }, [fetchArticles, fetchComments]);
 
   const handleEdit = (article: Article) => {
     setEditingArticle({ ...article });
@@ -107,8 +129,48 @@ export default function AdminDashboard() {
     router.push('/admin/login');
   };
 
+  const handleUpload = async (
+    file: File,
+    onDone: (url: string) => void
+  ) => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        onDone(data.url);
+      } else {
+        const data = await res.json();
+        alert(data.error || '上传失败');
+      }
+    } catch {
+      alert('上传失败，请重试');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteComment = async (id: string) => {
+    if (!confirm('确定要删除这条评论吗？')) return;
+
+    try {
+      const res = await fetch(`/api/comments/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchComments();
+      }
+    } catch {
+      alert('删除失败');
+    }
+  };
+
   const tabs = [
     { id: 'articles', label: '文章管理' },
+    { id: 'comments', label: '评论管理' },
     { id: 'stats', label: '数据统计' },
     { id: 'settings', label: '网站设置' },
   ];
@@ -267,6 +329,79 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Comments Tab */}
+      {activeTab === 'comments' && (
+        <div className="glass overflow-hidden animate-fade-up">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--glass-border)" }}>
+                  {['昵称', '评论内容', '所属文章', '时间', '操作'].map((th) => (
+                    <th
+                      key={th}
+                      className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {th}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {comments.map((comment) => (
+                  <tr
+                    key={comment.id}
+                    className="transition-colors duration-200"
+                    style={{ borderBottom: "1px solid var(--glass-border)" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "var(--bg-surface)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                        {comment.nickname}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm line-clamp-2 max-w-xs" style={{ color: "var(--text-secondary)" }}>
+                        {comment.content}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm" style={{ color: "var(--accent-mid)" }}>
+                        {comment.article?.title || '未知文章'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm" style={{ color: "var(--text-muted)" }}>
+                      {new Date(comment.createdAt).toLocaleDateString('zh-CN')}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="text-xs font-medium transition-colors duration-200"
+                        style={{ color: "#ef4444" }}
+                      >
+                        删除
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {comments.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+                      暂无评论
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Edit Form */}
       {isEditing && editingArticle && (
         <div className="glass p-8 animate-fade-up">
@@ -299,15 +434,47 @@ export default function AdminDashboard() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                内容
-              </label>
-              <textarea
+            <div data-color-mode="dark">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
+                  内容（Markdown）
+                </label>
+                <label
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer"
+                  style={{
+                    background: "var(--bg-surface)",
+                    border: "1px solid var(--glass-border)",
+                    color: "var(--accent-start)",
+                    opacity: uploading ? 0.5 : 1,
+                  }}
+                >
+                  {uploading ? '上传中...' : '+ 插入图片'}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    disabled={uploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleUpload(file, (url) => {
+                          const imgMd = `\n![${file.name}](${url})\n`;
+                          setEditingArticle({
+                            ...editingArticle,
+                            content: (editingArticle.content || '') + imgMd,
+                          });
+                        });
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              </div>
+              <MDEditor
                 value={editingArticle.content || ''}
-                onChange={(e) => setEditingArticle({ ...editingArticle, content: e.target.value })}
-                rows={10}
-                className="w-full px-4 py-3 text-sm"
+                onChange={(val) => setEditingArticle({ ...editingArticle, content: val || '' })}
+                height={400}
+                preview="live"
               />
             </div>
 
@@ -329,14 +496,53 @@ export default function AdminDashboard() {
 
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                  封面图片URL
+                  封面图片
                 </label>
-                <input
-                  type="text"
-                  value={editingArticle.coverImage || ''}
-                  onChange={(e) => setEditingArticle({ ...editingArticle, coverImage: e.target.value })}
-                  className="w-full px-4 py-3 text-sm"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="图片URL或上传"
+                    value={editingArticle.coverImage || ''}
+                    onChange={(e) => setEditingArticle({ ...editingArticle, coverImage: e.target.value })}
+                    className="flex-1 px-4 py-3 text-sm"
+                  />
+                  <label
+                    className="px-4 py-3 rounded-xl text-sm font-medium cursor-pointer whitespace-nowrap"
+                    style={{
+                      background: "var(--bg-surface)",
+                      border: "1px solid var(--glass-border)",
+                      color: "var(--accent-start)",
+                      opacity: uploading ? 0.5 : 1,
+                    }}
+                  >
+                    {uploading ? '上传中...' : '上传图片'}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      className="hidden"
+                      disabled={uploading}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleUpload(file, (url) =>
+                            setEditingArticle({ ...editingArticle, coverImage: url })
+                          );
+                        }
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
+                </div>
+                {editingArticle.coverImage && (
+                  <div className="mt-2">
+                    <img
+                      src={editingArticle.coverImage}
+                      alt="封面预览"
+                      className="h-24 rounded-lg object-cover"
+                      style={{ border: "1px solid var(--glass-border)" }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

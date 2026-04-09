@@ -2,6 +2,8 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Article {
   id: string;
@@ -16,11 +18,29 @@ interface Article {
   views: number;
 }
 
+interface Comment {
+  id: string;
+  nickname: string;
+  content: string;
+  createdAt: string;
+}
+
 export default function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [article, setArticle] = useState<Article | null>(null);
   const [related, setRelated] = useState<Article[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [nickname, setNickname] = useState('');
+  const [commentText, setCommentText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const fetchComments = () => {
+    fetch(`/api/comments?articleId=${id}`)
+      .then((r) => r.json())
+      .then((data) => setComments(data))
+      .catch(() => {});
+  };
 
   useEffect(() => {
     Promise.all([
@@ -37,7 +57,45 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         setLoading(false);
       })
       .catch(() => setLoading(false));
+    fetchComments();
   }, [id]);
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nickname.trim() || !commentText.trim()) return;
+    setSubmitting(true);
+
+    try {
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId: id, nickname, content: commentText }),
+      });
+      if (res.ok) {
+        setCommentText('');
+        fetchComments();
+      } else {
+        const data = await res.json();
+        alert(data.error || '评论失败');
+      }
+    } catch {
+      alert('网络错误，请重试');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const formatTimeAgo = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return '刚刚';
+    if (mins < 60) return `${mins} 分钟前`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} 小时前`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days} 天前`;
+    return new Date(dateStr).toLocaleDateString('zh-CN');
+  };
 
   if (loading) {
     return (
@@ -131,12 +189,96 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
             <p className="text-lg font-medium leading-relaxed" style={{ color: "var(--text-secondary)" }}>
               {article.excerpt}
             </p>
-            <div className="space-y-4 leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text-secondary)" }}>
-              {article.content}
+            <div className="markdown-body leading-relaxed">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.content}</ReactMarkdown>
             </div>
           </div>
         </div>
       </article>
+
+      {/* Comments Section */}
+      <section className="glass p-6 md:p-8 mb-12 animate-fade-up delay-1">
+        <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>
+          评论 ({comments.length})
+        </h2>
+        <div className="w-12 h-0.5 rounded-full mb-6" style={{ background: "linear-gradient(90deg, var(--accent-start), var(--accent-end))" }} />
+
+        {/* Comment Form */}
+        <form onSubmit={handleSubmitComment} className="mb-8 space-y-4">
+          <div className="flex gap-4">
+            <input
+              type="text"
+              placeholder="你的昵称"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              maxLength={20}
+              className="flex-shrink-0 w-40 px-4 py-2.5 text-sm"
+              required
+            />
+          </div>
+          <textarea
+            placeholder="写下你的评论..."
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            maxLength={1000}
+            rows={3}
+            className="w-full px-4 py-3 text-sm"
+            required
+          />
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
+              style={{
+                background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))",
+                color: "#fff",
+                opacity: submitting ? 0.6 : 1,
+              }}
+            >
+              {submitting ? '提交中...' : '发表评论'}
+            </button>
+          </div>
+        </form>
+
+        {/* Comment List */}
+        {comments.length > 0 ? (
+          <div className="space-y-4">
+            {comments.map((comment) => (
+              <div
+                key={comment.id}
+                className="p-4 rounded-xl"
+                style={{ background: "var(--bg-surface)", border: "1px solid var(--glass-border)" }}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                    style={{
+                      background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))",
+                      color: "#fff",
+                    }}
+                  >
+                    {comment.nickname.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                    {comment.nickname}
+                  </span>
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                    {formatTimeAgo(comment.createdAt)}
+                  </span>
+                </div>
+                <p className="text-sm leading-relaxed pl-11" style={{ color: "var(--text-secondary)" }}>
+                  {comment.content}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+            暂无评论，快来发表第一条评论吧！
+          </p>
+        )}
+      </section>
 
       {/* Related Articles */}
       {related.length > 0 && (
