@@ -65,15 +65,15 @@ export default function Footer() {
             <ul className="space-y-3 text-sm" style={{ color: "var(--text-muted)" }}>
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent-start)" }} />
-                business@example.com
+                Coded by Claude Code with GLM5.1
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent-end)" }} />
-                editor@example.com
+                Hosted by Railway via Github 
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent-mid)" }} />
-                A Tutu Production
+                Contact@ liblogvincet@outlook.com
               </li>
             </ul>
           </div>
