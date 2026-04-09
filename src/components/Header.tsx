@@ -48,6 +48,7 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-1">
             {[
               { href: '/', label: 'Home' },
+              { href: '/tools', label: 'AI Tools' },
               { href: '/category/Industry', label: 'Industry' },
               { href: '/category/Tech', label: 'Tech' },
             ].map((link) => (
@@ -119,6 +120,7 @@ export default function Header() {
             <nav className="flex flex-col gap-1">
               {[
                 { href: '/', label: 'Home' },
+                { href: '/tools', label: 'AI Tools' },
                 { href: '/category/Industry', label: 'Industry' },
                 { href: '/category/Tech', label: 'Tech' },
               ].map((link) => (
