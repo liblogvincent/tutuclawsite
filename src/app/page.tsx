@@ -63,7 +63,7 @@ export default function Home() {
         <div className="flex items-center justify-between mb-8 animate-fade-up delay-1">
           <div>
             <h2 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
-              最新文章
+              Latest Articles
             </h2>
             <div
               className="mt-2 w-12 h-0.5 rounded-full"
@@ -86,7 +86,7 @@ export default function Home() {
       <section className="mb-16">
         <div className="mb-8 animate-fade-up">
           <h2 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
-            热门文章
+            Popular
           </h2>
           <div
             className="mt-2 w-12 h-0.5 rounded-full"
@@ -122,7 +122,8 @@ export default function Home() {
                         >
                           {article.category}
                         </span>
-                        <span>{article.views.toLocaleString()} 阅读</span>
+                        <span>{article.category}</span>
+                        <span>{article.author}</span>
                       </div>
                     </div>
                   </div>

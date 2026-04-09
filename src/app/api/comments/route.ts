@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!articleId) {
-    return NextResponse.json({ error: '缺少 articleId 参数' }, { status: 400 });
+    return NextResponse.json({ error: 'Missing articleId parameter' }, { status: 400 });
   }
 
   const comments = await prisma.comment.findMany({
@@ -32,21 +32,21 @@ export async function POST(request: NextRequest) {
 
     if (!articleId || !nickname?.trim() || !content?.trim()) {
       return NextResponse.json(
-        { error: '请填写昵称和评论内容' },
+        { error: 'Nickname and content are required' },
         { status: 400 }
       );
     }
 
     if (nickname.trim().length > 20) {
       return NextResponse.json(
-        { error: '昵称不能超过20个字符' },
+        { error: 'Nickname must be 20 characters or less' },
         { status: 400 }
       );
     }
 
     if (content.trim().length > 1000) {
       return NextResponse.json(
-        { error: '评论内容不能超过1000个字符' },
+        { error: 'Comment must be 1000 characters or less' },
         { status: 400 }
       );
     }
@@ -61,6 +61,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(comment, { status: 201 });
   } catch {
-    return NextResponse.json({ error: '评论发布失败' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to post comment' }, { status: 500 });
   }
 }

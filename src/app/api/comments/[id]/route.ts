@@ -8,7 +8,7 @@ export async function DELETE(
 ) {
   const authCheck = await isAuthenticated();
   if (!authCheck) {
-    return NextResponse.json({ error: '未授权' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { id } = await params;
@@ -17,6 +17,6 @@ export async function DELETE(
     await prisma.comment.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: '评论不存在或删除失败' }, { status: 404 });
+    return NextResponse.json({ error: 'Comment not found or delete failed' }, { status: 404 });
   }
 }

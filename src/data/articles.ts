@@ -74,4 +74,4 @@ export const articles: Article[] = [
   }
 ];
 
-export const categories = ["行业动态", "科技前沿", "企业动态", "学术动态", "技术突破"];
+export const categories = ["Industry", "Tech", "Business", "Academia", "Breakthroughs"];

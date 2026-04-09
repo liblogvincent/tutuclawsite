@@ -15,8 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI资讯平台 - 最新人工智能行业动态",
-  description: "最具影响力的人工智能社交资讯平台，提供最新AI行业动态、技术突破和产业分析",
+  title: "TutuClaw - AI News Platform",
+  description: "TutuClaw — Latest AI industry updates, tech breakthroughs, and analysis",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="zh-CN"
+      lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

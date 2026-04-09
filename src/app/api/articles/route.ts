@@ -13,7 +13,7 @@ export async function GET() {
 // POST /api/articles — create article (auth required)
 export async function POST(request: NextRequest) {
   if (!(await isAuthenticated())) {
-    return NextResponse.json({ error: "未授权" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await request.json();
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
   if (!title || !excerpt || !content) {
     return NextResponse.json(
-      { error: "标题、摘要和内容不能为空" },
+      { error: "Title, excerpt, and content are required" },
       { status: 400 }
     );
   }
@@ -32,10 +32,10 @@ export async function POST(request: NextRequest) {
       excerpt,
       content,
       coverImage: coverImage || "",
-      category: category || "行业动态",
+      category: category || "Industry",
       tags: tags || [],
       publishedAt: publishedAt || new Date().toISOString().split("T")[0],
-      author: author || "管理员",
+      author: author || "Admin",
       views: 0,
     },
   });

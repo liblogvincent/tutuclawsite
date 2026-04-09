@@ -50,14 +50,14 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
           className="inline-block px-3 py-1 text-xs font-semibold rounded-full mb-4"
           style={{ background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))", color: "#fff" }}
         >
-          分类
+          Category
         </span>
         <h1 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: "var(--text-primary)" }}>
           {category}
         </h1>
         <div className="w-12 h-0.5 rounded-full mb-4" style={{ background: "linear-gradient(90deg, var(--accent-start), var(--accent-end))" }} />
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          共 <span className="font-semibold gradient-text">{articles.length}</span> 篇文章
+          <span className="font-semibold gradient-text">{articles.length}</span> articles
         </p>
       </div>
 
@@ -71,7 +71,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
         </div>
       ) : (
         <div className="text-center py-20">
-          <p style={{ color: "var(--text-muted)" }}>该分类暂无文章</p>
+          <p style={{ color: "var(--text-muted)" }}>No articles in this category</p>
         </div>
       )}
     </div>

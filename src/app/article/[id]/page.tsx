@@ -76,10 +76,10 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         fetchComments();
       } else {
         const data = await res.json();
-        alert(data.error || '评论失败');
+        alert(data.error || 'Comment failed');
       }
     } catch {
-      alert('网络错误，请重试');
+      alert('Network error, please retry');
     } finally {
       setSubmitting(false);
     }
@@ -88,12 +88,12 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   const formatTimeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return '刚刚';
-    if (mins < 60) return `${mins} 分钟前`;
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins} min ago`;
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours} 小时前`;
+    if (hours < 24) return `${hours}h ago`;
     const days = Math.floor(hours / 24);
-    if (days < 30) return `${days} 天前`;
+    if (days < 30) return `${days}d ago`;
     return new Date(dateStr).toLocaleDateString('zh-CN');
   };
 
@@ -112,7 +112,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   if (!article) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <p style={{ color: "var(--text-muted)" }}>文章不存在</p>
+        <p style={{ color: "var(--text-muted)" }}>Article not found</p>
       </div>
     );
   }
@@ -122,7 +122,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
       {/* Breadcrumb */}
       <nav className="mb-8 flex items-center gap-2 text-sm" style={{ color: "var(--text-muted)" }}>
         <Link href="/" className="transition-colors duration-300 hover:text-[var(--accent-start)]">
-          首页
+          Home
         </Link>
         <span>/</span>
         <Link
@@ -167,8 +167,6 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               {article.author}
             </span>
             <span>{article.publishedAt}</span>
-            <span className="w-1 h-1 rounded-full" style={{ background: "var(--text-muted)" }} />
-            <span>{article.views.toLocaleString()} 阅读</span>
           </div>
 
           <div className="flex flex-wrap gap-2 mb-8">
@@ -199,7 +197,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
       {/* Comments Section */}
       <section className="glass p-6 md:p-8 mb-12 animate-fade-up delay-1">
         <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>
-          评论 ({comments.length})
+          Comments ({comments.length})
         </h2>
         <div className="w-12 h-0.5 rounded-full mb-6" style={{ background: "linear-gradient(90deg, var(--accent-start), var(--accent-end))" }} />
 
@@ -208,7 +206,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           <div className="flex gap-4">
             <input
               type="text"
-              placeholder="你的昵称"
+              placeholder="Your nickname"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               maxLength={20}
@@ -217,7 +215,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
             />
           </div>
           <textarea
-            placeholder="写下你的评论..."
+            placeholder="Write your comment..."
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             maxLength={1000}
@@ -236,7 +234,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                 opacity: submitting ? 0.6 : 1,
               }}
             >
-              {submitting ? '提交中...' : '发表评论'}
+              {submitting ? 'Submitting...' : 'Post Comment'}
             </button>
           </div>
         </form>
@@ -275,7 +273,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           </div>
         ) : (
           <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            暂无评论，快来发表第一条评论吧！
+            No comments yet. Be the first to comment!
           </p>
         )}
       </section>
@@ -283,7 +281,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
       {/* Related Articles */}
       {related.length > 0 && (
         <section className="animate-fade-up delay-2">
-          <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>相关文章</h2>
+          <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>Related Articles</h2>
           <div className="w-12 h-0.5 rounded-full mb-8" style={{ background: "linear-gradient(90deg, var(--accent-start), var(--accent-end))" }} />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {related.map((relArticle) => (

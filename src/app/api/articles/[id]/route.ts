@@ -11,7 +11,7 @@ export async function GET(
   const article = await prisma.article.findUnique({ where: { id } });
 
   if (!article) {
-    return NextResponse.json({ error: "文章不存在" }, { status: 404 });
+    return NextResponse.json({ error: "Article not found" }, { status: 404 });
   }
 
   return NextResponse.json(article);
@@ -23,7 +23,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await isAuthenticated())) {
-    return NextResponse.json({ error: "未授权" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -43,7 +43,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await isAuthenticated())) {
-    return NextResponse.json({ error: "未授权" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;

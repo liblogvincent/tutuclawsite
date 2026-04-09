@@ -47,8 +47,6 @@ export default function ArticleCard({ article, featured = false }: ArticleCardPr
               <div className="flex items-center gap-3 text-xs" style={{ color: "var(--text-muted)" }}>
                 <span>{article.publishedAt}</span>
                 <span className="w-1 h-1 rounded-full" style={{ background: "var(--text-muted)" }} />
-                <span>{article.views.toLocaleString()} 阅读</span>
-                <span className="w-1 h-1 rounded-full" style={{ background: "var(--text-muted)" }} />
                 <span>{article.author}</span>
               </div>
             </div>
@@ -99,7 +97,7 @@ export default function ArticleCard({ article, featured = false }: ArticleCardPr
           </p>
           <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-muted)" }}>
             <span>{article.publishedAt}</span>
-            <span>{article.views.toLocaleString()} 阅读</span>
+            <span>{article.author}</span>
           </div>
         </div>
       </div>

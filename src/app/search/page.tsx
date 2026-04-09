@@ -56,7 +56,7 @@ function SearchContent() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-up">
       <h1 className="text-3xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
-        搜索文章
+        Search Articles
       </h1>
       <div
         className="w-12 h-0.5 rounded-full mb-8"
@@ -78,7 +78,7 @@ function SearchContent() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="输入关键词搜索..."
+              placeholder="Enter keywords..."
               className="w-full pl-12 pr-4 py-3.5 text-base rounded-xl"
               style={{ background: "var(--bg-surface)", border: "1px solid var(--glass-border)", color: "var(--text-primary)" }}
             />
@@ -90,14 +90,14 @@ function SearchContent() {
             onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.transform = "translateY(-1px)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
           >
-            搜索
+            Search
           </button>
         </div>
       </form>
 
       {query && (
         <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
-          找到 <span className="font-semibold gradient-text">{results.length}</span> 篇相关文章
+          Found <span className="font-semibold gradient-text">{results.length}</span> articles
         </p>
       )}
 
@@ -120,7 +120,7 @@ function SearchContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <p className="text-base" style={{ color: "var(--text-muted)" }}>没有找到相关文章</p>
+            <p className="text-base" style={{ color: "var(--text-muted)" }}>No articles found</p>
           </div>
         )
       )}

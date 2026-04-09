@@ -6,14 +6,14 @@ export async function POST(request: NextRequest) {
 
   if (!username || !password) {
     return NextResponse.json(
-      { error: "请输入用户名和密码" },
+      { error: "Username and password are required" },
       { status: 400 }
     );
   }
 
   if (!verifyCredentials(username, password)) {
     return NextResponse.json(
-      { error: "用户名或密码错误" },
+      { error: "Invalid username or password" },
       { status: 401 }
     );
   }

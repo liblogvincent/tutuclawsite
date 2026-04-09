@@ -11,30 +11,32 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-white"
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
                 style={{ background: "linear-gradient(135deg, var(--accent-start), var(--accent-end))" }}
               >
-                AI
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" style={{ color: "#fff" }}>
+                  <path d="M7.5 2C6.12 2 5 3.5 5 5.5S6.12 9 7.5 9 10 7.5 10 5.5 8.88 2 7.5 2zm4.5 0c-1.38 0-2.5 1.5-2.5 3.5S10.62 9 12 9s2.5-1.5 2.5-3.5S13.38 2 12 2zm4.5 0C15.12 2 14 3.5 14 5.5S15.12 9 16.5 9 19 7.5 19 5.5 17.88 2 16.5 2zM5.5 10C4.12 10 3 11.22 3 12.5 3 14.78 5 17 7 17c.73 0 1.41-.25 2-.67V20c0 1.1.9 2 2 2s2-.9 2-2v-3.67c.59.42 1.27.67 2 .67 2 0 4-2.22 4-4.5C19 11.22 17.88 10 16.5 10c-1.1 0-2.04.59-2.5 1.5-.46-.91-1.4-1.5-2.5-1.5s-2.04.59-2.5 1.5C8.54 10.59 7.6 10 5.5 10z"/>
+                </svg>
               </div>
               <span className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
                 TutuClaw
               </span>
             </div>
             <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
-              最具影响力的人工智能社交资讯平台，提供最新AI行业动态、技术突破和产业分析。有之一。
+              Your go-to AI news platform — latest industry updates, tech breakthroughs, and analysis.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider mb-5" style={{ color: "var(--text-secondary)" }}>
-              快速链接
+              Quick Links
             </h4>
             <ul className="space-y-3">
               {[
-                { href: '/', label: '首页' },
-                { href: '/category/行业动态', label: '行业动态' },
-                { href: '/category/科技前沿', label: '科技前沿' },
+                { href: '/', label: 'Home' },
+                { href: '/category/Industry', label: 'Industry' },
+                { href: '/category/Tech', label: 'Tech' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -58,7 +60,7 @@ export default function Footer() {
           {/* Contact */}
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider mb-5" style={{ color: "var(--text-secondary)" }}>
-              联系我们
+              Contact
             </h4>
             <ul className="space-y-3 text-sm" style={{ color: "var(--text-muted)" }}>
               <li className="flex items-center gap-2">
@@ -79,7 +81,7 @@ export default function Footer() {
           {/* Social */}
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider mb-5" style={{ color: "var(--text-secondary)" }}>
-              关注我们
+              Follow Us
             </h4>
             <div className="flex gap-3">
               {[
@@ -127,7 +129,7 @@ export default function Footer() {
             © 2026 A TutuClaw Site. All rights reserved.
           </p>
           <div className="flex gap-6">
-            {['隐私政策', '服务条款', '联系我们'].map((label) => (
+            {['Privacy Policy', 'Terms of Service', 'Contact Us'].map((label) => (
               <a
                 key={label}
                 href="#"

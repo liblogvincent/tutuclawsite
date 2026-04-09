@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
-const categories = ['行业动态', '科技前沿', '企业动态', '学术动态', '技术突破'];
+const categories = ['Industry', 'Tech', 'Business', 'Academia', 'Breakthroughs'];
 
 interface Article {
   id: string;
@@ -72,10 +72,10 @@ export default function AdminDashboard() {
       excerpt: '',
       content: '',
       coverImage: '',
-      category: '行业动态',
+      category: 'Industry',
       tags: [],
       publishedAt: new Date().toISOString().split('T')[0],
-      author: '管理员',
+      author: 'Admin',
       views: 0,
     });
     setIsEditing(true);
@@ -102,17 +102,17 @@ export default function AdminDashboard() {
         fetchArticles();
       } else {
         const data = await res.json();
-        alert(data.error || '保存失败');
+        alert(data.error || 'Save failed');
       }
     } catch {
-      alert('网络错误，请重试');
+      alert('Network error, please retry');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('确定要删除这篇文章吗？')) return;
+    if (!confirm('Are you sure you want to delete this article?')) return;
 
     try {
       const res = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
         fetchArticles();
       }
     } catch {
-      alert('删除失败');
+      alert('Delete failed');
     }
   };
 
@@ -146,17 +146,17 @@ export default function AdminDashboard() {
         onDone(data.url);
       } else {
         const data = await res.json();
-        alert(data.error || '上传失败');
+        alert(data.error || 'Upload failed');
       }
     } catch {
-      alert('上传失败，请重试');
+      alert('Upload failed, please retry');
     } finally {
       setUploading(false);
     }
   };
 
   const handleDeleteComment = async (id: string) => {
-    if (!confirm('确定要删除这条评论吗？')) return;
+    if (!confirm('Are you sure you want to delete this comment?')) return;
 
     try {
       const res = await fetch(`/api/comments/${id}`, { method: 'DELETE' });
@@ -164,15 +164,15 @@ export default function AdminDashboard() {
         fetchComments();
       }
     } catch {
-      alert('删除失败');
+      alert('Delete failed');
     }
   };
 
   const tabs = [
-    { id: 'articles', label: '文章管理' },
-    { id: 'comments', label: '评论管理' },
-    { id: 'stats', label: '数据统计' },
-    { id: 'settings', label: '网站设置' },
+    { id: 'articles', label: 'Articles' },
+    { id: 'comments', label: 'Comments' },
+    { id: 'stats', label: 'Stats' },
+    { id: 'settings', label: 'Settings' },
   ];
 
   return (
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>
-            后台管理
+            Dashboard
           </h1>
           <div
             className="w-12 h-0.5 rounded-full mt-2"
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
               e.currentTarget.style.boxShadow = "none";
             }}
           >
-            + 新建文章
+            + New Article
           </button>
           <button
             onClick={handleLogout}
@@ -216,7 +216,7 @@ export default function AdminDashboard() {
               color: "var(--text-secondary)",
             }}
           >
-            退出登录
+            Logout
           </button>
         </div>
       </div>
@@ -249,7 +249,7 @@ export default function AdminDashboard() {
             <table className="w-full">
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--glass-border)" }}>
-                  {['标题', '分类', '发布日期', '阅读量', '操作'].map((th) => (
+                  {['Title', 'Category', 'Published', 'Views', 'Actions'].map((th) => (
                     <th
                       key={th}
                       className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
@@ -303,14 +303,14 @@ export default function AdminDashboard() {
                           className="text-xs font-medium transition-colors duration-200"
                           style={{ color: "var(--accent-start)" }}
                         >
-                          编辑
+                          Edit
                         </button>
                         <button
                           onClick={() => handleDelete(article.id)}
                           className="text-xs font-medium transition-colors duration-200"
                           style={{ color: "#ef4444" }}
                         >
-                          删除
+                          Delete
                         </button>
                       </div>
                     </td>
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                 {articles.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-                      暂无文章，点击"新建文章"开始创作
+                      No articles yet. Click "+ New Article" to get started.
                     </td>
                   </tr>
                 )}
@@ -336,7 +336,7 @@ export default function AdminDashboard() {
             <table className="w-full">
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--glass-border)" }}>
-                  {['昵称', '评论内容', '所属文章', '时间', '操作'].map((th) => (
+                  {['Nickname', 'Comment', 'Article', 'Date', 'Actions'].map((th) => (
                     <th
                       key={th}
                       className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
@@ -372,7 +372,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm" style={{ color: "var(--accent-mid)" }}>
-                        {comment.article?.title || '未知文章'}
+                        {comment.article?.title || 'Unknown article'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm" style={{ color: "var(--text-muted)" }}>
@@ -384,7 +384,7 @@ export default function AdminDashboard() {
                         className="text-xs font-medium transition-colors duration-200"
                         style={{ color: "#ef4444" }}
                       >
-                        删除
+                        Delete
                       </button>
                     </td>
                   </tr>
@@ -392,7 +392,7 @@ export default function AdminDashboard() {
                 {comments.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-                      暂无评论
+                      No comments yet
                     </td>
                   </tr>
                 )}
@@ -406,13 +406,13 @@ export default function AdminDashboard() {
       {isEditing && editingArticle && (
         <div className="glass p-8 animate-fade-up">
           <h2 className="text-xl font-bold mb-8" style={{ color: "var(--text-primary)" }}>
-            {editingArticle.id ? '编辑文章' : '新建文章'}
+            {editingArticle.id ? 'Edit Article' : 'New Article'}
           </h2>
 
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                标题
+                Title
               </label>
               <input
                 type="text"
@@ -424,7 +424,7 @@ export default function AdminDashboard() {
 
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                摘要
+                Excerpt
               </label>
               <textarea
                 value={editingArticle.excerpt || ''}
@@ -437,7 +437,7 @@ export default function AdminDashboard() {
             <div data-color-mode="dark">
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                  内容（Markdown）
+                  Content (Markdown)
                 </label>
                 <label
                   className="px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer"
@@ -448,7 +448,7 @@ export default function AdminDashboard() {
                     opacity: uploading ? 0.5 : 1,
                   }}
                 >
-                  {uploading ? '上传中...' : '+ 插入图片'}
+                  {uploading ? 'Uploading...' : '+ Insert Image'}
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/gif,image/webp"
@@ -481,10 +481,10 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                  分类
+                  Category
                 </label>
                 <select
-                  value={editingArticle.category || '行业动态'}
+                  value={editingArticle.category || 'Industry'}
                   onChange={(e) => setEditingArticle({ ...editingArticle, category: e.target.value })}
                   className="w-full px-4 py-3 text-sm"
                 >
@@ -496,12 +496,12 @@ export default function AdminDashboard() {
 
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                  封面图片
+                  Cover Image
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="图片URL或上传"
+                    placeholder="Image URL or upload"
                     value={editingArticle.coverImage || ''}
                     onChange={(e) => setEditingArticle({ ...editingArticle, coverImage: e.target.value })}
                     className="flex-1 px-4 py-3 text-sm"
@@ -515,7 +515,7 @@ export default function AdminDashboard() {
                       opacity: uploading ? 0.5 : 1,
                     }}
                   >
-                    {uploading ? '上传中...' : '上传图片'}
+                    {uploading ? 'Uploading...' : 'Upload'}
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/gif,image/webp"
@@ -537,7 +537,7 @@ export default function AdminDashboard() {
                   <div className="mt-2">
                     <img
                       src={editingArticle.coverImage}
-                      alt="封面预览"
+                      alt="Cover preview"
                       className="h-24 rounded-lg object-cover"
                       style={{ border: "1px solid var(--glass-border)" }}
                     />
@@ -549,7 +549,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                  作者
+                  Author
                 </label>
                 <input
                   type="text"
@@ -561,7 +561,7 @@ export default function AdminDashboard() {
 
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                  标签（逗号分隔）
+                  Tags (comma-separated)
                 </label>
                 <input
                   type="text"
@@ -588,7 +588,7 @@ export default function AdminDashboard() {
                   color: "var(--text-secondary)",
                 }}
               >
-                取消
+                Cancel
               </button>
               <button
                 onClick={handleSave}
@@ -606,7 +606,7 @@ export default function AdminDashboard() {
                   e.currentTarget.style.boxShadow = "none";
                 }}
               >
-                {saving ? '保存中...' : '保存'}
+                {saving ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>
@@ -617,9 +617,9 @@ export default function AdminDashboard() {
       {activeTab === 'stats' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 animate-fade-up">
           {[
-            { label: '总文章数', value: articles.length },
-            { label: '总阅读量', value: articles.reduce((sum, a) => sum + a.views, 0).toLocaleString() },
-            { label: '分类数量', value: new Set(articles.map(a => a.category)).size },
+            { label: 'Total Articles', value: articles.length },
+            { label: 'Total Views', value: articles.reduce((sum, a) => sum + a.views, 0).toLocaleString() },
+            { label: 'Categories', value: new Set(articles.map(a => a.category)).size },
           ].map((stat, i) => (
             <div key={stat.label} className={`glass glass-hover p-6 animate-fade-up delay-${i + 1}`}>
               <p className="text-sm font-medium mb-1" style={{ color: "var(--text-muted)" }}>
@@ -637,9 +637,9 @@ export default function AdminDashboard() {
       {activeTab === 'settings' && (
         <div className="glass p-8 animate-fade-up">
           <h2 className="text-xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-            网站设置
+            Settings
           </h2>
-          <p style={{ color: "var(--text-muted)" }}>网站设置功能开发中...</p>
+          <p style={{ color: "var(--text-muted)" }}>Settings coming soon...</p>
         </div>
       )}
     </div>
