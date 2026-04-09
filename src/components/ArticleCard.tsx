@@ -11,7 +11,7 @@ export default function ArticleCard({ article, featured = false }: ArticleCardPr
     return (
       <Link href={`/article/${article.id}`} className="group block">
         <div
-          className="glass glass-hover shimmer-overlay overflow-hidden"
+          className="glass glass-hover shimmer-overlay card-lift overflow-hidden"
           style={{ borderRadius: "var(--radius)" }}
         >
           <div className="relative h-72 md:h-[420px]">
@@ -59,7 +59,7 @@ export default function ArticleCard({ article, featured = false }: ArticleCardPr
   return (
     <Link href={`/article/${article.id}`} className="group block">
       <div
-        className="glass glass-hover accent-border h-full overflow-hidden flex flex-col"
+        className="glass glass-hover accent-border card-lift h-full overflow-hidden flex flex-col"
         style={{ borderRadius: "var(--radius)" }}
       >
         <div className="relative h-44 overflow-hidden">

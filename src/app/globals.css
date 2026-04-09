@@ -20,6 +20,67 @@
   --radius: 16px;
 }
 
+/* ── Light Theme ─────────────────────────────── */
+[data-theme="light"] {
+  --bg-primary: #f2f1ed;
+  --bg-secondary: #e8e7e3;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f7f6f3;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(210, 5, 30, 0.1);
+  --glass-border-hover: rgba(210, 5, 30, 0.25);
+  --accent-start: #D2051E;
+  --accent-mid: #e8384f;
+  --accent-end: #f07178;
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #8a8a8a;
+  --glow-indigo: rgba(210, 5, 30, 0.08);
+  --glow-cyan: rgba(210, 5, 30, 0.04);
+}
+
+[data-theme="light"] ::selection {
+  background: rgba(210, 5, 30, 0.2);
+  color: #1a1a1a;
+}
+
+[data-theme="light"] .glass-hover:hover {
+  box-shadow: 0 4px 24px rgba(210, 5, 30, 0.08), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .glow-blob {
+  opacity: 0.15;
+}
+
+[data-theme="light"] .shimmer-overlay::after {
+  background: linear-gradient(90deg, transparent, rgba(210, 5, 30, 0.04), transparent);
+}
+
+[data-theme="light"] input:not(.w-md-editor-text-input *):focus,
+[data-theme="light"] textarea:not(.w-md-editor-text *):focus,
+[data-theme="light"] select:focus {
+  border-color: var(--accent-start) !important;
+  box-shadow: 0 0 0 3px rgba(210, 5, 30, 0.1) !important;
+}
+
+[data-theme="light"] .rank-badge {
+  animation: none;
+  box-shadow: 0 0 8px rgba(210, 5, 30, 0.2);
+}
+
+[data-theme="light"] .w-md-editor {
+  border: 1px solid var(--glass-border) !important;
+}
+
+[data-theme="light"] .w-md-editor-toolbar {
+  background-color: var(--bg-elevated) !important;
+}
+
+[data-theme="light"] .w-md-editor-toolbar li > button:hover {
+  background-color: var(--bg-surface) !important;
+}
+
 @theme inline {
   --color-background: var(--bg-primary);
   --color-foreground: var(--text-primary);
@@ -103,6 +164,7 @@ body {
   mask-composite: exclude;
   opacity: 0;
   transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 .accent-border:hover::before {
   opacity: 1;
@@ -193,8 +255,8 @@ body {
 }
 
 /* ── Custom Input ─────────────────────────────── */
-input,
-textarea,
+input:not(.w-md-editor-text-input *),
+textarea:not(.w-md-editor-text *),
 select {
   background: var(--bg-surface) !important;
   border: 1px solid var(--glass-border) !important;
@@ -203,16 +265,16 @@ select {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-input:focus,
-textarea:focus,
+input:not(.w-md-editor-text-input *):focus,
+textarea:not(.w-md-editor-text *):focus,
 select:focus {
   border-color: var(--accent-start) !important;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
   outline: none;
 }
 
-input::placeholder,
-textarea::placeholder {
+input:not(.w-md-editor-text-input *)::placeholder,
+textarea:not(.w-md-editor-text *)::placeholder {
   color: var(--text-muted) !important;
 }
 
@@ -311,4 +373,123 @@ textarea::placeholder {
   height: 1px;
   background: var(--glass-border);
   margin: 2em 0;
+}
+
+/* ── MDEditor Dark Theme ──────────────────────── */
+.w-md-editor {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.w-md-editor-text {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+}
+.w-md-editor-text pre,
+.w-md-editor-text textarea {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-geist-mono), monospace !important;
+}
+.w-md-editor-preview {
+  background-color: var(--bg-elevated) !important;
+}
+.w-md-editor-toolbar {
+  background-color: var(--bg-elevated) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+.w-md-editor-toolbar li > button {
+  color: var(--text-secondary) !important;
+}
+.w-md-editor-toolbar li > button:hover {
+  color: var(--accent-start) !important;
+  background-color: var(--bg-surface) !important;
+}
+
+/* ── Animated Gradient Hero ───────────────────── */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.hero-gradient {
+  position: relative;
+  overflow: hidden;
+}
+.hero-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--accent-start),
+    var(--accent-end),
+    var(--accent-mid),
+    var(--accent-start)
+  );
+  background-size: 300% 300%;
+  animation: gradientShift 8s ease infinite;
+  opacity: 0.08;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* ── Reading Progress Bar ─────────────────────── */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+  z-index: 9999;
+  transition: width 0.1s linear;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ── Skeleton Shimmer ─────────────────────────── */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(99, 102, 241, 0.08),
+    transparent
+  );
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+[data-theme="light"] .skeleton::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(210, 5, 30, 0.06),
+    transparent
+  );
+}
+
+/* ── Enhanced Card Hover ──────────────────────── */
+.card-lift {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.card-lift:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 0 20px var(--glow-indigo),
+    0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .card-lift:hover {
+  box-shadow:
+    0 0 20px var(--glow-indigo),
+    0 12px 40px rgba(0, 0, 0, 0.08);
 }

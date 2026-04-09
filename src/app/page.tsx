@@ -33,11 +33,11 @@ export default function Home() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="animate-pulse space-y-8">
-          <div className="h-72 md:h-[420px] rounded-2xl" style={{ background: "var(--bg-surface)" }} />
+        <div className="space-y-8">
+          <div className="skeleton h-72 md:h-[420px]" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-64 rounded-2xl" style={{ background: "var(--bg-surface)" }} />
+              <div key={i} className="skeleton h-64" style={{ animationDelay: `${i * 0.15}s` }} />
             ))}
           </div>
         </div>
@@ -55,7 +55,9 @@ export default function Home() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Hero / Featured */}
       <section className="mb-16 animate-fade-up">
-        <ArticleCard article={featuredArticle} featured />
+        <div className="hero-gradient">
+          <ArticleCard article={featuredArticle} featured />
+        </div>
       </section>
 
       {/* Recent Articles */}

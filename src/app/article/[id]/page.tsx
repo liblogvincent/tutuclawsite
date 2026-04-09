@@ -34,6 +34,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [readProgress, setReadProgress] = useState(0);
 
   const fetchComments = () => {
     fetch(`/api/comments?articleId=${id}`)
@@ -59,6 +60,17 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
       .catch(() => setLoading(false));
     fetchComments();
   }, [id]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = document.documentElement;
+      const scrollTop = el.scrollTop;
+      const scrollHeight = el.scrollHeight - el.clientHeight;
+      setReadProgress(scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +131,8 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-up">
+      {/* Reading Progress Bar */}
+      <div className="reading-progress" style={{ width: `${readProgress}%` }} />
       {/* Breadcrumb */}
       <nav className="mb-8 flex items-center gap-2 text-sm" style={{ color: "var(--text-muted)" }}>
         <Link href="/" className="transition-colors duration-300 hover:text-[var(--accent-start)]">

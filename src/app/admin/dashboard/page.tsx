@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
-const categories = ['Industry', 'Tech', 'Business', 'Academia', 'Breakthroughs'];
+const categories = ['Cases', 'Projects', 'Learning', 'Business', 'Academia', 'Breakthroughs'];
 
 interface Article {
   id: string;

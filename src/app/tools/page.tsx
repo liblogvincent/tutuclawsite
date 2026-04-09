@@ -1142,7 +1142,7 @@ export default function ToolsPage() {
               key={tool.slug}
               className={`animate-fade-up delay-${Math.min(i + 1, 5)}`}
             >
-              <div className="glass glass-hover accent-border p-6 h-full flex flex-col">
+              <div className="glass glass-hover card-lift p-6 h-full flex flex-col">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>
                     {tool.name}
@@ -1214,7 +1214,7 @@ export default function ToolsPage() {
         >
           <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.7)", backdropFilter: "blur(8px)" }} />
           <div
-            className="relative glass w-full max-w-2xl max-h-[85vh] overflow-y-auto p-6 md:p-8 animate-fade-up"
+            className="relative z-10 glass w-full max-w-2xl max-h-[85vh] overflow-y-auto p-6 md:p-8 animate-fade-up"
             onClick={(e) => e.stopPropagation()}
           >
             <button

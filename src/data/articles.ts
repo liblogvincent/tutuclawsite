@@ -74,4 +74,4 @@ export const articles: Article[] = [
   }
 ];
 
-export const categories = ["Industry", "Tech", "Business", "Academia", "Breakthroughs"];
+export const categories = ["Cases", "Projects", "Learning", "Business", "Academia", "Breakthroughs"];
