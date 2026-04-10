@@ -20,12 +20,9 @@ export default function ArticleCard({ article, featured = false }: ArticleCardPr
               alt={article.title}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            {/* Dark gradient overlay */}
+            {/* Gradient overlay */}
             <div
-              className="absolute inset-0"
-              style={{
-                background: "linear-gradient(to top, var(--bg-primary) 0%, rgba(7,8,15,0.6) 40%, transparent 100%)",
-              }}
+              className="absolute inset-0 hero-overlay"
             />
             {/* Content */}
             <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
@@ -38,13 +35,13 @@ export default function ArticleCard({ article, featured = false }: ArticleCardPr
               >
                 {article.category}
               </span>
-              <h2 className="text-2xl md:text-4xl font-bold mb-3 leading-tight" style={{ color: "var(--text-primary)" }}>
+              <h2 className="hero-title text-2xl md:text-4xl font-bold mb-3 leading-tight drop-shadow-lg">
                 {article.title}
               </h2>
-              <p className="text-sm md:text-base mb-3 line-clamp-2" style={{ color: "var(--text-secondary)" }}>
+              <p className="hero-excerpt text-sm md:text-base mb-3 line-clamp-2 drop-shadow">
                 {article.excerpt}
               </p>
-              <div className="flex items-center gap-3 text-xs" style={{ color: "var(--text-muted)" }}>
+              <div className="hero-meta flex items-center gap-3 text-xs">
                 <span>{article.publishedAt}</span>
                 <span className="w-1 h-1 rounded-full" style={{ background: "var(--text-muted)" }} />
                 <span>{article.author}</span>
