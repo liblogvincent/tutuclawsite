@@ -8,6 +8,25 @@ const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 const categories = ['Cases', 'Projects', 'Learning', 'Business', 'Academia', 'Breakthroughs'];
 
+const markdownSnippets = [
+  {
+    label: 'Code Block',
+    snippet: '\n```\nPaste code here\n```\n',
+  },
+  {
+    label: 'HTML',
+    snippet: '\n```html\n<!-- paste your generated HTML or story section here -->\n```\n',
+  },
+  {
+    label: 'JS',
+    snippet: '\n```js\nconsole.log("Hello, story");\n```\n',
+  },
+  {
+    label: 'Bash',
+    snippet: '\n```bash\n# paste terminal commands here\n```\n',
+  },
+];
+
 interface Article {
   id: string;
   title: string;
@@ -72,7 +91,7 @@ export default function AdminDashboard() {
       excerpt: '',
       content: '',
       coverImage: '',
-      category: 'Industry',
+      category: 'Cases',
       tags: [],
       publishedAt: new Date().toISOString().split('T')[0],
       author: 'Admin',
@@ -153,6 +172,15 @@ export default function AdminDashboard() {
     } finally {
       setUploading(false);
     }
+  };
+
+  const insertMarkdownSnippet = (snippet: string) => {
+    if (!editingArticle) return;
+
+    setEditingArticle({
+      ...editingArticle,
+      content: `${editingArticle.content || ''}${snippet}`,
+    });
   };
 
   const handleDeleteComment = async (id: string) => {
@@ -319,7 +347,7 @@ export default function AdminDashboard() {
                 {articles.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-                      No articles yet. Click "+ New Article" to get started.
+                      No articles yet. Click {'"+ New Article"'} to get started.
                     </td>
                   </tr>
                 )}
@@ -435,45 +463,67 @@ export default function AdminDashboard() {
             </div>
 
             <div data-color-mode="dark">
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                  Content (Markdown)
-                </label>
-                <label
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer"
-                  style={{
-                    background: "var(--bg-surface)",
-                    border: "1px solid var(--glass-border)",
-                    color: "var(--accent-start)",
-                    opacity: uploading ? 0.5 : 1,
-                  }}
-                >
-                  {uploading ? 'Uploading...' : '+ Insert Image'}
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="hidden"
-                    disabled={uploading}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        handleUpload(file, (url) => {
-                          const imgMd = `\n![${file.name}](${url})\n`;
-                          setEditingArticle({
-                            ...editingArticle,
-                            content: (editingArticle.content || '') + imgMd,
-                          });
-                        });
-                      }
-                      e.target.value = '';
-                    }}
-                  />
-                </label>
+              <div className="flex flex-col gap-3 mb-3">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
+                    Content (Markdown)
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {markdownSnippets.map(({ label, snippet }) => (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => insertMarkdownSnippet(snippet)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200"
+                        style={{
+                          background: "var(--bg-surface)",
+                          border: "1px solid var(--glass-border)",
+                          color: "var(--text-secondary)",
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                    <label
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer"
+                      style={{
+                        background: "var(--bg-surface)",
+                        border: "1px solid var(--glass-border)",
+                        color: "var(--accent-start)",
+                        opacity: uploading ? 0.5 : 1,
+                      }}
+                    >
+                      {uploading ? 'Uploading...' : '+ Insert Image'}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        className="hidden"
+                        disabled={uploading}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleUpload(file, (url) => {
+                              const imgMd = `\n![${file.name}](${url})\n`;
+                              setEditingArticle({
+                                ...editingArticle,
+                                content: (editingArticle.content || '') + imgMd,
+                              });
+                            });
+                          }
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                  Use fenced blocks like <code>{'```html'}</code> and <code>{'```js'}</code> when you want code to display literally in the story preview.
+                </p>
               </div>
               <MDEditor
                 value={editingArticle.content || ''}
                 onChange={(val) => setEditingArticle({ ...editingArticle, content: val || '' })}
-                height={400}
+                height={560}
                 preview="live"
               />
             </div>
@@ -484,7 +534,7 @@ export default function AdminDashboard() {
                   Category
                 </label>
                 <select
-                  value={editingArticle.category || 'Industry'}
+                  value={editingArticle.category || 'Cases'}
                   onChange={(e) => setEditingArticle({ ...editingArticle, category: e.target.value })}
                   className="w-full px-4 py-3 text-sm"
                 >

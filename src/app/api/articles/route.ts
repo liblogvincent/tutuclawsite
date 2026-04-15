@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       excerpt,
       content,
       coverImage: coverImage || "",
-      category: category || "Industry",
+      category: category || "Cases",
       tags: tags || [],
       publishedAt: publishedAt || new Date().toISOString().split("T")[0],
       author: author || "Admin",

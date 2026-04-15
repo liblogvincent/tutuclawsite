@@ -1214,7 +1214,7 @@ export default function ToolsPage() {
         >
           <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.7)", backdropFilter: "blur(8px)" }} />
           <div
-            className="relative z-10 glass w-full max-w-2xl max-h-[85vh] overflow-y-auto p-6 md:p-8 animate-fade-up"
+            className="relative z-50 glass w-full max-w-2xl max-h-[85vh] overflow-y-auto p-6 md:p-8 animate-fade-up"
             onClick={(e) => e.stopPropagation()}
           >
             <button

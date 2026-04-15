@@ -180,7 +180,6 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
             >
               {article.author}
             </span>
-            <span>{article.publishedAt}</span>
           </div>
 
           <div className="flex flex-wrap gap-2 mb-8">
